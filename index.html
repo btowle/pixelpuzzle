@@ -1,0 +1,189 @@
+<html>
+<head>
+<title>PixelPuzzle</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+ <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+<script>
+var util = {
+  idToValue: function(id){
+    var strings = id.split("-");
+    var ret = [parseInt(strings[0]), parseInt(strings[1])];
+    return ret;
+  }
+}
+var game = {
+  guessArray: [
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ],
+  answerArray: [
+    [1,0,0,1],
+    [0,1,1,0],
+    [0,1,1,0],
+    [1,0,0,1]
+  ],
+  setGuess: function(idstr, val){
+    var id = util.idToValue(idstr);
+    var set = 0;
+    if(val){ set = 1; }
+    game.guessArray[id[0]][id[1]] = set;
+    game.checkPuzzle();
+  },
+  checkPuzzle: function(){
+    var valid = true;
+    for(var i=0; i < 4; i++){
+      for(var j=0; j <4; j++){
+        if(game.guessArray[i][j] != game.answerArray[i][j]){
+          valid = false;
+        }
+      }
+    }
+    if(valid){
+      alert('you win!');
+    }
+  }
+}
+$(function(){
+  $(".column-numbers > div, .row-numbers > div").click(function(){
+    if($(this).hasClass('line-through')){
+      $(this).removeClass('line-through');
+    }else{
+      $(this).addClass('line-through');
+    }
+  });
+  $(".grid-cell").click(function(){
+    if($(this).hasClass('yes')){
+      $(this).removeClass('yes');
+      $(this).addClass('no');
+      game.setGuess(this.id, false);
+    }else if($(this).hasClass('no')){
+      $(this).removeClass('no');
+    }else{
+      $(this).addClass('yes');
+      game.setGuess(this.id, true);
+    }
+  });
+
+});
+</script>
+<style>
+
+#grid{
+  -webkit-user-select:none;
+}
+.grid-row{
+  width: 100%;
+  clear: both;
+  position: relative;
+}
+.grid-cell{
+  width: 50px;
+  height: 50px;
+  float: left;
+  text-align: center;
+  position: relative;
+  border: 1px solid black;
+  color: #FFF;
+  cursor:default;
+}
+.number-row{
+  width: 100%;
+}
+.row-numbers{
+  float: left;
+  text-align: center;
+  -webkit-user-select:none;
+  cursor:default;
+  width: 50px;
+}
+.row-numbers > div{
+  float:left;
+  padding: 4px;
+  top: 50%;
+}
+.column-numbers{
+  width: 50px;
+  text-align: center;
+  float: left;
+  -webkit-user-select:none;
+  cursor:default;
+}
+.line-through{
+  text-decoration: line-through;
+}
+.yes{
+  background-color: #000;
+  color: #000;
+}
+.no{
+  color: #000;
+}
+.column-break{
+  clear: both;
+}
+
+</style>
+</head>
+<body>
+  <div id="grid">
+    <div class="number-row">
+      <div class="column-numbers">X</div>
+      <div class="column-numbers">
+        <div>1</div>
+        <div>1</div>
+      </div>
+      <div class="column-numbers">
+        <div>2</div>
+      </div>
+      <div class="column-numbers">
+        <div>2</div>
+      </div>
+      <div class="column-numbers">
+        <div>1</div>
+        <div>1</div>
+      </div>
+    </div>
+    <div class="grid-row">
+      <div class="row-numbers">
+        <div>1</div>
+        <div>1</div>
+      </div>
+      <div id="0-0" class="grid-cell">X</div>
+      <div id="1-0" class="grid-cell">X</div>
+      <div id="2-0" class="grid-cell">X</div>
+      <div id="3-0" class="grid-cell">X</div>
+    </div>
+    <div class="grid-row">
+      <div class="row-numbers">
+        <div>2</div>
+      </div>
+      <div id="0-1" class="grid-cell">X</div>
+      <div id="1-1" class="grid-cell">X</div>
+      <div id="2-1" class="grid-cell">X</div>
+      <div id="3-1" class="grid-cell">X</div>
+    </div>
+    <div class="grid-row">
+      <div class="row-numbers">
+        <div>2</div>
+      </div>
+      <div id="0-2" class="grid-cell">X</div>
+      <div id="1-2" class="grid-cell">X</div>
+      <div id="2-2" class="grid-cell">X</div>
+      <div id="3-2" class="grid-cell">X</div>
+    </div>
+    <div class="grid-row">
+      <div class="row-numbers">
+        <div>1</div>
+        <div>1</div>
+      </div>
+      <div id="0-3" class="grid-cell">X</div>
+      <div id="1-3" class="grid-cell">X</div>
+      <div id="2-3" class="grid-cell">X</div>
+      <div id="3-3" class="grid-cell">X</div>
+    </div>
+  </div>
+
+</body>
+</html>
