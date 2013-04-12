@@ -14,11 +14,15 @@ var util = {
 var game = {
   guessArray: [],
   answerArray: [
-    [1,0,0,1,0],
-    [0,1,1,0,1],
-    [0,1,1,1,0],
-    [0,1,1,1,1],
-    [1,0,0,0,1]
+    [0,0,1,1,1,1,1,0,0],
+    [0,1,1,1,1,1,1,1,0],
+    [1,1,0,1,1,0,1,1,1],
+    [1,1,0,0,1,0,0,1,1],
+    [1,1,1,1,1,1,1,1,1],
+    [1,1,0,1,1,1,0,1,1],
+    [1,1,1,0,0,0,1,1,1],
+    [0,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,0,0]
   ],
   clues: {
     columns: [],
@@ -36,7 +40,8 @@ var game = {
     var size = game.answerArray.length;
     for(var i=0; i < size; i++){
       for(var j=0; j < size; j++){
-        if(game.answerArray[i][j] && game.guessArray[i][j] != game.answerArray[i][j]){
+        if((game.answerArray[i][j] && !game.guessArray[i][j]) ||
+           (!game.answerArray[i][j] && game.guessArray[i][j])){
           valid = false;
         }
       }
@@ -85,37 +90,46 @@ var game = {
     }
     //end produce clues
     //make clueString
-    var clueString = '<div class="number-row"><div class="column-numbers">.</div>';
+    var clueString = '<div class="number-row">';
     for(var i=0; i < game.clues.columns.length; i++){
-      clueString += '<div class="column-numbers">';
+      clueString += '<div class="column-numbers"><div class="column-numbers-group">';
       for(var j=0; j < game.clues.columns[i].length; j++){
         clueString += '<div>'+game.clues.columns[i][j]+'</div>';
       }
+      clueString += '</div></div>';
+    }
+    clueString += '</div><div class="number-column">';
+    for(var i = 0; i < size; i++){
+      clueString +='<div class="row-numbers">';
+      for(var j = 0; j < game.clues.rows[i].length; j++){
+        clueString += '<div>'+game.clues.rows[i][j]+'</div>';
+      }
       clueString += '</div>';
     }
-    clueString += '</div>';
+    clueString += '</div></div>';
+
+
     //make rowString
     var size = game.answerArray.length;
     var rowString = ' ';
     for(var i = 0; i < size; i++){
-      rowString += '<div class="grid-row"><div class="row-numbers">';
-      for(var j = 0; j < game.clues.rows[i].length; j++){
-        rowString += '<div>'+game.clues.rows[i][j]+'</div>';
-      }
-      rowString += '</div>';
+      rowString += '<div class="grid-row">';
       for(var j = 0; j < size; j++){
         rowString += '<div id="'+j+'-'+i+'" class="grid-cell">X</div>'
       }
       rowString += '</div>';
     }
+    $('body').append(clueString);
     $('body').append('<div id="grid">');
-    $('#grid').append(clueString+rowString);
+    $('#grid').append(rowString);
+    //$('body').append('<div id="grid">');
+    //$('#grid').append(clueString+rowString);
 
   }
 }
 $(function(){
   game.init();
-  $(".column-numbers > div, .row-numbers > div").click(function(){
+  $(".column-numbers-group > div, .row-numbers > div").click(function(){
     if($(this).hasClass('line-through')){
       $(this).removeClass('line-through');
     }else{
@@ -125,7 +139,10 @@ $(function(){
   $(".grid-cell").click(function(){
     if($(this).hasClass('yes')){
       $(this).removeClass('yes');
+      $(this).addClass('no');
       game.setGuess(this.id, false);
+    }else if($(this).hasClass('no')){
+      $(this).removeClass('no');
     }else{
       $(this).addClass('yes');
       game.setGuess(this.id, true);
@@ -134,12 +151,21 @@ $(function(){
 });
 </script>
 <style>
-
+body{
+  padding: 0;
+  margin: 0;
+}
 #grid{
+  width: 500px;
+  height: 500px;
+  position: absolute;
+  left: 100px;
+  top: 100px;
   -webkit-user-select:none;
 }
 .grid-row{
   width: 100%;
+  height: 50px;
   clear: both;
   position: relative;
 }
@@ -155,22 +181,34 @@ $(function(){
 }
 .number-row{
   width: 100%;
+  height: 100px;
+  position: absolute;
+  top: 0px;
+  left: 122px;
+}
+.number-column{
+  position: absolute;
+  top: 122;
+  left: 0;
 }
 .row-numbers{
-  float: left;
-  text-align: center;
   -webkit-user-select:none;
   cursor:default;
-  width: 50px;
+  width: 100px;
+  height: 50px;
 }
 .row-numbers > div{
-  float:left;
+  float:right;
   padding: 4px;
-  top: 50%;
+}
+.column-numbers-group{
+  text-align: center;
+  position: absolute;
+  bottom: 0;
 }
 .column-numbers{
   width: 50px;
-  text-align: center;
+  height: 100%;
   float: left;
   -webkit-user-select:none;
   cursor:default;
@@ -183,7 +221,8 @@ $(function(){
   color: #000;
 }
 .no{
-  color: #000;
+  background-color: #FCC;
+  color: #FCC;
 }
 .column-break{
   clear: both;
