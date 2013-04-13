@@ -9,20 +9,30 @@ var util = {
     var strings = id.split("-");
     var ret = [parseInt(strings[1]), parseInt(strings[0])];
     return ret;
+  },
+  arrayToNum: function(arr){
+    var num = 0;
+    for(var i=0; i < arr.length; i++){
+      num = num | (arr[i] << arr.length-i-1);
+    }
+    return num;
+  },
+  numToArray: function(num){
+    var arr = [];
+    while(num != 0){
+      arr[arr.length] = num & 1;
+      num = num >>> 1;
+    }
+    return arr.reverse();
   }
 }
 var game = {
   guessArray: [],
   answerArray: [
-    [0,0,1,1,1,1,1,0,0],
-    [0,1,1,1,1,1,1,1,0],
-    [1,1,0,1,1,0,1,1,1],
-    [1,1,0,0,1,0,0,1,1],
-    [1,1,1,1,1,1,1,1,1],
-    [1,1,0,1,1,1,0,1,1],
-    [1,1,1,0,0,0,1,1,1],
-    [0,1,1,1,1,1,1,1,0],
-    [0,0,1,1,1,1,1,0,0]
+    [1,0,0,1],
+    [0,1,1,0],
+    [0,1,1,0],
+    [0,1,1,0]
   ],
   clues: {
     columns: [],
@@ -40,8 +50,9 @@ var game = {
     var size = game.answerArray.length;
     for(var i=0; i < size; i++){
       for(var j=0; j < size; j++){
-        if((game.answerArray[i][j] && !game.guessArray[i][j]) ||
-           (!game.answerArray[i][j] && game.guessArray[i][j])){
+        var bothTrue = (game.answerArray[i][j] && game.guessArray[i][j]);
+        var bothFalse = (!game.answerArray[i][j] && !game.guessArray[i][j]);
+        if(!(bothTrue || bothFalse)){
           valid = false;
         }
       }
@@ -101,7 +112,7 @@ var game = {
     clueString += '</div><div class="number-column">';
     for(var i = 0; i < size; i++){
       clueString +='<div class="row-numbers">';
-      for(var j = 0; j < game.clues.rows[i].length; j++){
+      for(var j = game.clues.rows[i].length-1; j >= 0; j--){
         clueString += '<div>'+game.clues.rows[i][j]+'</div>';
       }
       clueString += '</div>';
@@ -119,9 +130,9 @@ var game = {
       }
       rowString += '</div>';
     }
-    $('body').append(clueString);
-    $('body').append('<div id="grid">');
+    $('body').prepend('<div id="grid"></div>');
     $('#grid').append(rowString);
+    $('body').prepend(clueString);
     //$('body').append('<div id="grid">');
     //$('#grid').append(clueString+rowString);
 
@@ -147,6 +158,13 @@ $(function(){
       $(this).addClass('yes');
       game.setGuess(this.id, true);
     }
+  });
+  $("#number-in").submit(function(){
+    var arrout = util.numToArray(parseInt($("#num").val()));
+    var numout = util.arrayToNum(arrout);
+    $("#array-out").html( arrout );
+    $("#number-out").html( numout );
+    return false;
   });
 });
 </script>
@@ -175,7 +193,7 @@ body{
   float: left;
   text-align: center;
   position: relative;
-  border: 1px solid black;
+  border: 1px solid #333;
   color: #FFF;
   cursor:default;
 }
@@ -231,5 +249,15 @@ body{
 </style>
 </head>
 <body>
+<!--
+<div style="position:absolute; top:600">
+  <form id="number-in"> 
+    <input id="num" type="text" name="num">
+    <input type="submit" value="Calculate">
+  </form>
+  <div id="array-out"></div>
+  <div id="number-out"></div>
+</div>
+-->
 </body>
 </html>
