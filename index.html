@@ -4,7 +4,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
 <script>
-var util = {
+var Util = {
   idToValue: function(id){
     var strings = id.split("-");
     var ret = [parseInt(strings[1]), parseInt(strings[0])];
@@ -26,32 +26,31 @@ var util = {
     return arr.reverse();
   }
 }
-var game = {
+var Game = {
   guessArray: [],
-  answerArray: [
-    [1,0,0,1],
-    [0,1,1,0],
-    [0,1,1,0],
-    [0,1,1,0]
-  ],
+  testJSON: '{"arr":[[1,0,0,1],[0,1,1,0],[0,1,1,0],[0,1,1,0]]}',
+  answerArray: [],
   clues: {
     columns: [],
     rows: []
   },
+  arrayFromJSON: function(json){
+    return JSON.parse(json).arr;
+  },
   setGuess: function(idstr, val){
-    var id = util.idToValue(idstr);
+    var id = Util.idToValue(idstr);
     var set = 0;
     if(val){ set = 1; }
-    game.guessArray[id[0]][id[1]] = set;
-    game.checkPuzzle();
+    Game.guessArray[id[0]][id[1]] = set;
+    Game.checkPuzzle();
   },
   checkPuzzle: function(){
     var valid = true;
-    var size = game.answerArray.length;
+    var size = Game.answerArray.length;
     for(var i=0; i < size; i++){
       for(var j=0; j < size; j++){
-        var bothTrue = (game.answerArray[i][j] && game.guessArray[i][j]);
-        var bothFalse = (!game.answerArray[i][j] && !game.guessArray[i][j]);
+        var bothTrue = (Game.answerArray[i][j] && Game.guessArray[i][j]);
+        var bothFalse = (!Game.answerArray[i][j] && !Game.guessArray[i][j]);
         if(!(bothTrue || bothFalse)){
           valid = false;
         }
@@ -62,36 +61,37 @@ var game = {
     }
   },
   init: function(){
+    Game.answerArray = Game.arrayFromJSON(Game.testJSON);
     //create guess array
-    var size = game.answerArray.length;
+    var size = Game.answerArray.length;
     for(var i = 0; i < size; i++){
-      game.guessArray[i] = new Array();
+      Game.guessArray[i] = new Array();
     }
     //produce clues
-    var size = game.answerArray.length;
+    var size = Game.answerArray.length;
     var prevRow;
     var prevCol;
     for(var i=0; i < size; i++){
       var prevRow = 0;
       var prevCol = 0;
-      game.clues.rows[i] = new Array();
-      game.clues.columns[i] = new Array();
+      Game.clues.rows[i] = new Array();
+      Game.clues.columns[i] = new Array();
       for(var j=0; j < size; j++){
-        if(game.answerArray[i][j]){
+        if(Game.answerArray[i][j]){
           if(prevRow){
-            game.clues.rows[i][game.clues.rows[i].length-1]++;
+            Game.clues.rows[i][Game.clues.rows[i].length-1]++;
           }else{
-            game.clues.rows[i][game.clues.rows[i].length] = 1;
+            Game.clues.rows[i][Game.clues.rows[i].length] = 1;
           }
           prevRow = 1;
         }else{
           prevRow = 0;
         }
-        if(game.answerArray[j][i]){
+        if(Game.answerArray[j][i]){
           if(prevCol){
-            game.clues.columns[i][game.clues.columns[i].length-1]++;
+            Game.clues.columns[i][Game.clues.columns[i].length-1]++;
           }else{
-            game.clues.columns[i][game.clues.columns[i].length] = 1;
+            Game.clues.columns[i][Game.clues.columns[i].length] = 1;
           }
           prevCol = 1;
         }else{
@@ -102,18 +102,18 @@ var game = {
     //end produce clues
     //make clueString
     var clueString = '<div class="number-row">';
-    for(var i=0; i < game.clues.columns.length; i++){
+    for(var i=0; i < Game.clues.columns.length; i++){
       clueString += '<div class="column-numbers"><div class="column-numbers-group">';
-      for(var j=0; j < game.clues.columns[i].length; j++){
-        clueString += '<div>'+game.clues.columns[i][j]+'</div>';
+      for(var j=0; j < Game.clues.columns[i].length; j++){
+        clueString += '<div>'+Game.clues.columns[i][j]+'</div>';
       }
       clueString += '</div></div>';
     }
     clueString += '</div><div class="number-column">';
     for(var i = 0; i < size; i++){
       clueString +='<div class="row-numbers">';
-      for(var j = game.clues.rows[i].length-1; j >= 0; j--){
-        clueString += '<div>'+game.clues.rows[i][j]+'</div>';
+      for(var j = Game.clues.rows[i].length-1; j >= 0; j--){
+        clueString += '<div>'+Game.clues.rows[i][j]+'</div>';
       }
       clueString += '</div>';
     }
@@ -121,7 +121,7 @@ var game = {
 
 
     //make rowString
-    var size = game.answerArray.length;
+    var size = Game.answerArray.length;
     var rowString = ' ';
     for(var i = 0; i < size; i++){
       rowString += '<div class="grid-row">';
@@ -139,7 +139,7 @@ var game = {
   }
 }
 $(function(){
-  game.init();
+  Game.init();
   $(".column-numbers-group > div, .row-numbers > div").click(function(){
     if($(this).hasClass('line-through')){
       $(this).removeClass('line-through');
@@ -151,17 +151,17 @@ $(function(){
     if($(this).hasClass('yes')){
       $(this).removeClass('yes');
       $(this).addClass('no');
-      game.setGuess(this.id, false);
+      Game.setGuess(this.id, false);
     }else if($(this).hasClass('no')){
       $(this).removeClass('no');
     }else{
       $(this).addClass('yes');
-      game.setGuess(this.id, true);
+      Game.setGuess(this.id, true);
     }
   });
   $("#number-in").submit(function(){
-    var arrout = util.numToArray(parseInt($("#num").val()));
-    var numout = util.arrayToNum(arrout);
+    var arrout = Util.numToArray(parseInt($("#num").val()));
+    var numout = Util.arrayToNum(arrout);
     $("#array-out").html( arrout );
     $("#number-out").html( numout );
     return false;
