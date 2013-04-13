@@ -17,25 +17,38 @@ var Util = {
     }
     return num;
   },
-  numToArray: function(num){
+  numToArray: function(num, size){
     var arr = [];
-    while(num != 0){
+    for(var i=0; i < size; i++){
       arr[arr.length] = num & 1;
       num = num >>> 1;
     }
     return arr.reverse();
+  },
+  arrayToString: function(arr){
+    var str = arr.length+":";
+    for(var i=0; i < arr.length; i++){
+      str += ":" + Util.arrayToNum(arr[i]);
+    }
+    return str;
+  },
+  stringToArray: function(str){
+    var tokens = str.split('::');
+    var arr = [];
+    var size = parseInt(tokens[0]);
+    tokens = tokens[1].split(':');
+    for(var i = 0; i < size; i++){
+      arr[i] = Util.numToArray(parseInt(tokens[i]), size);
+    }
+    return arr;
   }
 }
 var Game = {
   guessArray: [],
-  testJSON: '{"arr":[[1,0,0,1],[0,1,1,0],[0,1,1,0],[0,1,1,0]]}',
   answerArray: [],
   clues: {
     columns: [],
     rows: []
-  },
-  arrayFromJSON: function(json){
-    return JSON.parse(json).arr;
   },
   setGuess: function(idstr, val){
     var id = Util.idToValue(idstr);
@@ -61,7 +74,7 @@ var Game = {
     }
   },
   init: function(){
-    Game.answerArray = Game.arrayFromJSON(Game.testJSON);
+    Game.answerArray = Util.stringToArray('5::17:10:4:10:17');
     //create guess array
     var size = Game.answerArray.length;
     for(var i = 0; i < size; i++){
